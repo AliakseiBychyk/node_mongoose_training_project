@@ -3,15 +3,33 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 
-class GetShowData extends EventEmitter {
+class GetData extends EventEmitter {
+  constructor(type) {
+    super();
+    this.type = type;
+  }
   getData = (id) => {
+
+    const urls = {
+      shows: `/shows/${id}`,
+      cast: `/shows/${id}/cast`,
+    };
+
+    const jsons = {
+      shows: 'shows.json',
+      cast: 'cast.json',
+    };
+    console.log(this.type);
+    console.log(jsons[this.type]);
+    console.log(urls[this.type]);
+
     const options = {
       hostname: 'api.tvmaze.com',
-      path: `/shows/${id}`,
+      path: urls[this.type],
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     };
-    console.log(`${options.hostname}${options.path}`);
+    console.log(options);
 
     const req = http.request(options, res => {
       let responseBody = '';
@@ -23,10 +41,10 @@ class GetShowData extends EventEmitter {
       });
 
       res.on('end', () => {
-        fs.writeFile(path.resolve(__dirname, 'show.json'), responseBody, err => {
+        fs.writeFile(path.resolve(__dirname, jsons[this.type]), responseBody, err => {
           if (err) throw err;
 
-          this.emit('show-loaded');
+          this.emit('loaded');
         });
       });
     });
@@ -39,4 +57,4 @@ class GetShowData extends EventEmitter {
   };
 }
 
-export default GetShowData;
+export default GetData;

@@ -1,41 +1,39 @@
 import fs from 'fs';
 import path from 'path';
-import GetShowData from './getShowData';
-import GetShowCastData from './getShowCastData';
+import GetData from './getData';
 
 // import dataSchema from '../models/appModel';
 
 // const Data = mongoose.model('Data', DataSchema);
 
 export const getEmptyRoute = (req, res) => {
-  res.send('navigate to /:showID');
+  res.send('<h3>Navigate to /showID</h3>');
 };
-
 
 export const getRequestedData = (req, res) => {
   const showId = req.params.showId;
-  const showLoader = new GetShowData();
-  const showCastLoader = new GetShowCastData();
+  const showLoader = new GetData('shows');
+  const showCastLoader = new GetData('cast');
 
   showLoader.getData(showId);
 
-  showLoader.on('show-loaded', () => {
+  showLoader.on('loaded', () => {
 
-    fs.readFile(path.resolve(__dirname, 'show.json'), 'utf-8', (err, data) => {
+    fs.readFile(path.resolve(__dirname, 'shows.json'), 'utf-8', (err, data) => {
       if (err) throw err;
 
       const parsedShowData = JSON.parse(data);
-      const { id: show_id, name: show_name } = parsedShowData;
+      const { id, name } = parsedShowData;
 
-      showLoader.removeListener('show-loaded', () => {
+      showLoader.removeListener('loaded', () => {
         console.log('removed');
       });
 
       showCastLoader.getData(showId);
 
-      showCastLoader.on('cast-loaded', () => {
+      showCastLoader.on('loaded', () => {
 
-        fs.readFile(path.resolve(__dirname, 'showCast.json'), 'utf-8', (err, castdata) => {
+        fs.readFile(path.resolve(__dirname, 'cast.json'), 'utf-8', (err, castdata) => {
           if (err) throw err;
 
           const parsedShowCastData = JSON.parse(castdata);
@@ -44,21 +42,16 @@ export const getRequestedData = (req, res) => {
             const { id, name, birthday } = el.person;
             return [...acc, { id, name, birthday }];
           }, []);
-          console.log('reduced cast data \n', castData);
-          console.log(typeof castData[0].birthday);
 
-          res.json({ show_id, show_name, cast: castData });
+          res.json({ id, name, cast: castData });
 
-          showCastLoader.removeListener('cast-loaded', () => {
+          showCastLoader.removeListener('loaded', () => {
             console.log('removed');
           });
         });
       });
-
     });
   });
-
-
 };
 
 
