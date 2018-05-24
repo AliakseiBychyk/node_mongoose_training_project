@@ -19,9 +19,6 @@ class GetData extends EventEmitter {
       shows: 'shows.json',
       cast: 'cast.json',
     };
-    console.log(this.type);
-    console.log(jsons[this.type]);
-    console.log(urls[this.type]);
 
     const options = {
       hostname: 'api.tvmaze.com',
@@ -29,7 +26,6 @@ class GetData extends EventEmitter {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     };
-    console.log(options);
 
     const req = http.request(options, res => {
       let responseBody = '';
