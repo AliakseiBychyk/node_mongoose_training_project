@@ -13,7 +13,7 @@ export const getEmptyRoute = (req, res) => {
 export const getRequestedData = (req, res) => {
   const showId = req.params.showId;
   const showLoader = new GetData('shows');
-  const showCastLoader = new GetData('cast');
+  const castLoader = new GetData('cast');
 
   showLoader.getData(showId);
 
@@ -29,9 +29,9 @@ export const getRequestedData = (req, res) => {
         console.log('removed');
       });
 
-      showCastLoader.getData(showId);
+      castLoader.getData(showId);
 
-      showCastLoader.on('loaded', () => {
+      castLoader.on('loaded', () => {
 
         fs.readFile(path.resolve(__dirname, 'cast.json'), 'utf-8', (err, castdata) => {
           if (err) throw err;
@@ -45,7 +45,7 @@ export const getRequestedData = (req, res) => {
 
           res.json({ id, name, cast: castData });
 
-          showCastLoader.removeListener('loaded', () => {
+          castLoader.removeListener('loaded', () => {
             console.log('removed');
           });
         });
